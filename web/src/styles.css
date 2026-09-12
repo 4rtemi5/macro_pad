@@ -1,0 +1,1412 @@
+/* ==========================================================================
+   Macro Pad — "backlit deck" theme
+   Double-shot keycaps, neon underglow, matte glass, dark cyberpunk ambient.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+  --bg: #07080c;
+  --accent: #6ee7ff;
+  --accent-2: #c084fc;
+  --text: #e8ecf4;
+  --text-dim: #8b93a5;
+  --danger: #ff5c7a;
+  --warn: #ffd180;
+  --glass-bg: rgba(255, 255, 255, 0.035);
+  --glass-border: rgba(255, 255, 255, 0.09);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(100% 70% at 12% -10%, rgba(110, 231, 255, 0.07), transparent 55%),
+    radial-gradient(90% 70% at 105% 110%, rgba(192, 132, 252, 0.06), transparent 55%),
+    linear-gradient(180deg, #0c0f16 0%, var(--bg) 70%);
+  font-family: system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  color: var(--text);
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* faint deck grid, fading out towards the edges */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(148, 163, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 255, 0.045) 1px, transparent 1px);
+  background-size: 34px 34px;
+  -webkit-mask-image: radial-gradient(85% 65% at 50% 42%, black, transparent);
+  mask-image: radial-gradient(85% 65% at 50% 42%, black, transparent);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- grid ---------------------------------------------------------------- */
+
+.pad-grid {
+  flex: 1;
+  display: grid;
+  grid-auto-flow: row dense; /* wide/tall tiles backfill gaps */
+  gap: clamp(10px, 3vw, 20px);
+  padding: clamp(12px, 3.2vw, 26px);
+  padding-bottom: calc(clamp(12px, 3.2vw, 26px) + env(safe-area-inset-bottom));
+  align-content: center;
+  justify-items: stretch;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* --- profile tabs --------------------------------------------------------- */
+
+.pad-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+}
+
+.profile-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(10px, 2.4vw, 16px) clamp(12px, 3.2vw, 26px) 0;
+  flex-shrink: 0;
+}
+
+.profile-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.profile-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  appearance: none;
+  border: 1px solid transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.profile-tab:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.profile-tab.active {
+  color: #9be8ff;
+  border-bottom-color: #22d3ee;
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.07), transparent);
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.55);
+}
+
+.profile-tab-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.profile-tab-icon img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* --- keycap ---------------------------------------------------------------
+   .pad-button   switch housing / well — the gap light bleeds from
+   .keycap       cap body (side wall)
+   .keycap-top   dished matte-glass top surface with the legend
+   ------------------------------------------------------------------------- */
+
+.pad-button {
+  --btn-color: #4a5160;
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  padding: 6.5%;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16%;
+  background: linear-gradient(170deg, #151821 0%, #0a0c11 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.5),
+    0 10px 22px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.pad-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--btn-color) 70%, #ffffff);
+  outline-offset: 2px;
+}
+
+/* pure display tiles (no action): look identical, just not pressable */
+.pad-button:disabled {
+  cursor: default;
+  color: inherit;
+}
+
+/* neon light spilling from under the cap onto the deck */
+.keycap-bleed {
+  position: absolute;
+  inset: -13%;
+  border-radius: 26%;
+  background: radial-gradient(
+    52% 52% at 50% 54%,
+    color-mix(in srgb, var(--btn-color) 48%, transparent),
+    transparent 72%
+  );
+  filter: blur(13px);
+  opacity: 0;
+  transition: opacity 260ms ease;
+  pointer-events: none;
+}
+
+.keycap {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 5%;
+  border-radius: 13%;
+  background: linear-gradient(180deg, #262b37 0%, #181b23 55%, #101218 100%);
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.42),
+    0 8px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  transition:
+    transform 70ms ease,
+    box-shadow 120ms ease,
+    background 220ms ease;
+}
+
+/* dished, frosted top — the backlight diffuses through it */
+.keycap-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7%;
+  width: 100%;
+  height: 100%;
+  padding: 9%;
+  border-radius: 11%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(130% 105% at 50% 28%, transparent 52%, rgba(0, 0, 0, 0.3) 100%),
+    linear-gradient(165deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.025) 48%, rgba(255, 255, 255, 0.05) 100%);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -7px 14px rgba(0, 0, 0, 0.32);
+  transition:
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease,
+    filter 120ms ease;
+}
+
+/* physical press: cap bottoms out, backlight flares */
+.pad-button:active .keycap {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.42),
+    0 4px 8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.pad-button:active .keycap-top {
+  filter: brightness(1.3);
+}
+
+.pad-button:active .keycap-bleed {
+  opacity: 0.85;
+  transition-duration: 60ms;
+}
+
+/* latched toggle: cap stays slightly depressed, like a key held down */
+.pad-button.toggle-on .keycap {
+  transform: translateY(2px);
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.42),
+    0 5px 10px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.pad-button.toggle-on .keycap-bleed {
+  opacity: 0.45;
+}
+
+/* --- legends (the "double-shot" shine-through) ---------------------------- */
+
+.pad-icon {
+  line-height: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* FontAwesome — solid backlit glyph */
+.icon-fa {
+  font-size: clamp(20px, 6.2vw, 38px);
+  color: color-mix(in srgb, var(--btn-color) 38%, #f2f5fb);
+  filter:
+    drop-shadow(0 0 5px color-mix(in srgb, var(--btn-color) 85%, transparent))
+    drop-shadow(0 0 16px color-mix(in srgb, var(--btn-color) 45%, transparent));
+  transition: color 220ms ease, filter 220ms ease;
+}
+
+/* emoji — full colour with a coloured bloom */
+.icon-emoji {
+  font-size: clamp(23px, 6.8vw, 42px);
+  filter:
+    drop-shadow(0 0 9px color-mix(in srgb, var(--btn-color) 60%, transparent))
+    saturate(1.15);
+  transition: filter 220ms ease;
+}
+
+/* transparent text / unicode — hollow neon legend */
+.icon-text {
+  font-size: clamp(17px, 5.2vw, 31px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: transparent;
+  -webkit-text-stroke: 1.4px color-mix(in srgb, var(--btn-color) 52%, #e8edf6);
+  text-shadow:
+    0 0 12px color-mix(in srgb, var(--btn-color) 75%, transparent),
+    0 0 30px color-mix(in srgb, var(--btn-color) 35%, transparent);
+  transition: text-shadow 220ms ease;
+}
+
+.pad-icon img {
+  width: 44%;
+  max-height: 44%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--btn-color) 45%, transparent));
+}
+
+/* --- display-tile content (text / markdown) -------------------------------- */
+
+.pad-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-size: clamp(10px, 2.6vw, 15px);
+  line-height: 1.35;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+  pointer-events: none;
+}
+
+/* markdown: compact element resets so content fits a keycap face */
+.pad-content.markdown {
+  white-space: normal;
+}
+
+.pad-content.markdown :is(h1, h2, h3, h4, h5, h6, p, ul, ol, pre, blockquote) {
+  margin: 0 0 0.4em;
+  padding: 0;
+  font-size: inherit;
+}
+
+.pad-content.markdown :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 700;
+}
+
+.pad-content.markdown :is(ul, ol) {
+  padding-left: 1.2em;
+}
+
+.pad-content.markdown code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 4px;
+  padding: 0 3px;
+}
+
+.pad-content.markdown pre {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+}
+
+.pad-content.markdown pre code {
+  background: none;
+  padding: 0;
+}
+
+.pad-content.markdown a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.pad-content.markdown blockquote {
+  border-left: 2px solid var(--glass-border);
+  padding-left: 0.6em;
+  color: var(--text-dim);
+}
+
+.pad-content.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.pad-label {
+  font-size: clamp(9px, 2.4vw, 13px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-dim);
+  pointer-events: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 220ms ease, text-shadow 220ms ease;
+}
+
+/* unlit deck: legends dimmed, no bleed */
+.glow-off .icon-fa {
+  color: color-mix(in srgb, var(--btn-color) 42%, #6f7684);
+  filter: none;
+}
+
+.glow-off .icon-emoji {
+  filter: saturate(0.75) brightness(0.9);
+}
+
+.glow-off .icon-text {
+  -webkit-text-stroke-color: color-mix(in srgb, var(--btn-color) 40%, #6f7684);
+  text-shadow: none;
+}
+
+/* solid glow — steady backlight */
+.glow-solid,
+.glow-breathing {
+  border-color: color-mix(in srgb, var(--btn-color) 48%, transparent);
+  background: linear-gradient(
+    170deg,
+    color-mix(in srgb, var(--btn-color) 30%, #151821) 0%,
+    color-mix(in srgb, var(--btn-color) 10%, #0a0c11) 100%
+  );
+}
+
+.glow-solid {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.5),
+    0 10px 22px rgba(0, 0, 0, 0.55),
+    0 0 20px color-mix(in srgb, var(--btn-color) 48%, transparent),
+    0 0 60px color-mix(in srgb, var(--btn-color) 24%, transparent);
+}
+
+.glow-solid .keycap-bleed {
+  opacity: 0.6;
+}
+
+.glow-solid .keycap-top,
+.glow-breathing .keycap-top {
+  border-color: color-mix(in srgb, var(--btn-color) 32%, rgba(255, 255, 255, 0.1));
+  background:
+    radial-gradient(130% 105% at 50% 28%, transparent 52%, rgba(0, 0, 0, 0.3) 100%),
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--btn-color) 16%, rgba(255, 255, 255, 0.08)) 0%,
+      color-mix(in srgb, var(--btn-color) 5%, rgba(255, 255, 255, 0.02)) 48%,
+      color-mix(in srgb, var(--btn-color) 10%, rgba(255, 255, 255, 0.04)) 100%
+    );
+}
+
+.glow-solid .pad-label,
+.glow-breathing .pad-label {
+  color: color-mix(in srgb, var(--btn-color) 42%, #aab2c2);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--btn-color) 45%, transparent);
+}
+
+/* breathing — the backlight slowly pulses */
+.glow-breathing {
+  animation: breathe-housing 2.6s ease-in-out infinite;
+}
+
+.glow-breathing .keycap-bleed {
+  animation: breathe-bleed 2.6s ease-in-out infinite;
+}
+
+@keyframes breathe-housing {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.5),
+      0 10px 22px rgba(0, 0, 0, 0.55),
+      0 0 8px color-mix(in srgb, var(--btn-color) 22%, transparent),
+      0 0 26px color-mix(in srgb, var(--btn-color) 10%, transparent);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.5),
+      0 10px 22px rgba(0, 0, 0, 0.55),
+      0 0 26px color-mix(in srgb, var(--btn-color) 62%, transparent),
+      0 0 74px color-mix(in srgb, var(--btn-color) 32%, transparent);
+  }
+}
+
+@keyframes breathe-bleed {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-breathing,
+  .glow-breathing .keycap-bleed {
+    animation: none;
+  }
+  .glow-breathing .keycap-bleed {
+    opacity: 0.5;
+  }
+}
+
+/* --- status / toast ------------------------------------------------------ */
+
+.status {
+  margin: auto;
+  color: var(--text-dim);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.toast {
+  position: fixed;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(42, 14, 22, 0.72);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--danger) 22%, transparent);
+  color: #ff9eae;
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  max-width: 90vw;
+  z-index: 10;
+}
+
+.toast-action {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+}
+
+/* --- passcode gate -------------------------------------------------------- */
+
+.auth-gate {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 38px 30px;
+  max-width: 340px;
+  width: calc(100% - 48px);
+  text-align: center;
+  background: rgba(15, 18, 26, 0.55);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 0 90px rgba(110, 231, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.auth-icon {
+  font-size: 42px;
+  filter: drop-shadow(0 0 14px rgba(110, 231, 255, 0.55));
+}
+
+.auth-gate h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: linear-gradient(100deg, #8ef0ff, #d8b4fe);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.auth-gate p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.auth-gate input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  color: var(--text);
+  background: rgba(8, 10, 15, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  outline: none;
+  text-align: center;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.auth-gate input:focus {
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  box-shadow:
+    0 0 0 3px rgba(110, 231, 255, 0.14),
+    0 0 20px rgba(110, 231, 255, 0.22);
+}
+
+.auth-gate button {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #06222b;
+  background: linear-gradient(135deg, var(--accent), #7aa2ff);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 22px rgba(110, 231, 255, 0.3);
+  transition: box-shadow 180ms ease, filter 180ms ease;
+}
+
+.auth-gate button:not(:disabled):active {
+  filter: brightness(1.15);
+}
+
+.auth-gate button:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
+.auth-error {
+  color: #ff9eae;
+  font-size: 13px;
+  text-shadow: 0 0 12px rgba(255, 92, 122, 0.5);
+}
+
+/* --- settings ------------------------------------------------------------- */
+
+.settings-gear {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top));
+  right: 12px;
+  z-index: 20;
+  background: rgba(20, 24, 33, 0.6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.settings-gear:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 18px rgba(110, 231, 255, 0.25);
+}
+
+/* Flex column: the inner area scrolls, the footer stays pinned below it.
+   (position:fixed can't be used for the footer — the overlay's backdrop-filter
+   makes it the containing block, so a fixed footer would scroll with content.) */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(100% 70% at 12% -10%, rgba(110, 231, 255, 0.05), transparent 55%),
+    rgba(7, 8, 12, 0.86);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.settings-inner {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Children stack at their natural height; the container scrolls. Without
+   this, flex-shrink squeezes overflowing children — and any child with
+   overflow:hidden (e.g. .mode-toggle) can collapse to zero height. */
+.settings-inner > * {
+  flex-shrink: 0;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(110, 231, 255, 0.35);
+}
+
+.settings-close {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.mode-toggle {
+  display: flex;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(10, 12, 18, 0.5);
+}
+
+.mode-toggle button {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.mode-toggle button.active {
+  background: rgba(110, 231, 255, 0.12);
+  color: var(--accent);
+}
+
+.settings-notice {
+  background: rgba(42, 36, 18, 0.6);
+  border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+  color: var(--warn);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.settings-error {
+  background: rgba(42, 14, 22, 0.6);
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  color: #ff9eae;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* CodeMirror hosts its own theme (JsonEditor.tsx); this is just the layout shell. */
+.json-editor-cm .cm-editor {
+  width: 100%;
+}
+
+.json-status {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.json-status ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.json-status code {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.json-ok {
+  background: rgba(14, 42, 30, 0.55);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #6ee7b7;
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.1);
+}
+
+.json-bad {
+  background: rgba(42, 14, 22, 0.6);
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  color: #ff9eae;
+}
+
+.settings-inner section,
+.settings-inner details.section {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.settings-inner h2 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: color-mix(in srgb, var(--accent) 55%, var(--text-dim));
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: flex-end;
+}
+
+.form-row label {
+  flex: 1;
+  min-width: 0;
+}
+
+.field-grow {
+  flex: 1;
+}
+
+.field-id {
+  max-width: 72px;
+}
+
+.field-span {
+  max-width: 60px;
+  flex: none;
+}
+
+.form-block {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.settings-inner label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.settings-inner input,
+.settings-inner select,
+.settings-inner textarea {
+  background: rgba(8, 10, 15, 0.6);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  padding: 9px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.settings-inner textarea {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  resize: vertical;
+}
+
+.settings-inner input:focus,
+.settings-inner select:focus,
+.settings-inner textarea:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 0 0 3px rgba(110, 231, 255, 0.12);
+}
+
+.field-note {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.button-card {
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Drag-to-reorder grip in the card's summary row */
+.drag-handle {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 6px 4px;
+  margin: -4px 2px -4px -4px;
+  color: var(--text-dim);
+  opacity: 0.65;
+  cursor: grab;
+  /* Let the pointer drag the card instead of scrolling the list. */
+  touch-action: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.button-card.dragging {
+  position: relative;
+  z-index: 5;
+  opacity: 0.9;
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+  background: rgba(16, 19, 28, 0.97);
+}
+
+/* Collapse the card body mid-drag so long lists stay manageable. */
+.button-card.dragging > *:not(summary) {
+  display: none;
+}
+
+.toggle-sub {
+  border-left: 2px solid var(--glass-border);
+  padding-left: 10px;
+  margin: 8px 0;
+}
+
+.profile-picker {
+  margin: 14px 0 4px;
+}
+
+.delete-button {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  color: #ff9eae;
+  font-size: 15px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.delete-button:hover {
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+  box-shadow: 0 0 14px rgba(255, 92, 122, 0.2);
+}
+
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-field input[type="color"] {
+  width: 44px;
+  height: 38px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.clear-color {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px;
+}
+
+.add-button {
+  width: 100%;
+  padding: 11px;
+  background: none;
+  border: 1px dashed rgba(110, 231, 255, 0.3);
+  border-radius: 12px;
+  color: var(--accent);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.add-button:hover {
+  background: rgba(110, 231, 255, 0.07);
+  border-color: rgba(110, 231, 255, 0.55);
+}
+
+.help {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.help summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.help-body {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #c3c9d4;
+}
+
+.help-body h3 {
+  margin: 14px 0 4px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.help-body p {
+  margin: 0;
+}
+
+.help-body code {
+  background: rgba(110, 231, 255, 0.1);
+  border: 1px solid rgba(110, 231, 255, 0.14);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 12px;
+}
+
+.settings-footer {
+  flex: none;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(7, 8, 12, 0.78);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--glass-border);
+}
+
+.settings-footer button {
+  flex: 1;
+  max-width: 304px;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: box-shadow 180ms ease, filter 180ms ease;
+}
+
+.revert-button {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-dim);
+}
+
+.save-button {
+  background: linear-gradient(135deg, var(--accent), #7aa2ff);
+  border: none;
+  color: #06222b;
+  box-shadow: 0 0 22px rgba(110, 231, 255, 0.28);
+}
+
+.save-button:disabled,
+.revert-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
+.moved-notice {
+  margin: 30vh auto 0;
+  text-align: center;
+  max-width: 320px;
+}
+
+.moved-notice h1 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+
+.moved-notice p {
+  margin: 0 0 16px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.moved-notice a {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+/* thin dark scrollbars for the settings overlay */
+.settings-inner::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-inner::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.settings-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- this device (keep-awake) --------------------------------------------- */
+
+.keep-awake {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.keep-awake-icon {
+  font-size: 17px;
+  color: var(--text-dim);
+  transition: color 220ms ease, filter 220ms ease;
+  flex-shrink: 0;
+}
+
+.keep-awake-icon.lit {
+  color: var(--warn);
+  filter: drop-shadow(0 0 8px rgba(255, 209, 128, 0.6));
+}
+
+.keep-awake-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.keep-awake-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.keep-awake-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+/* pill switch */
+.switch {
+  flex-shrink: 0;
+  position: relative;
+  width: 46px;
+  height: 26px;
+  padding: 0;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(8, 10, 15, 0.65);
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #6f7684;
+  transition: transform 200ms ease, background 200ms ease;
+}
+
+.switch.on {
+  background: color-mix(in srgb, var(--accent) 28%, rgba(8, 10, 15, 0.65));
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 0 14px rgba(110, 231, 255, 0.25);
+}
+
+.switch.on .switch-thumb {
+  transform: translateX(20px);
+  background: var(--accent);
+}
+
+.switch:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.switch:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, #ffffff);
+  outline-offset: 2px;
+}
+
+/* --- collapsible sections & button cards ----------------------------------- */
+
+details.section > summary,
+.button-card > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+details.section > summary::-webkit-details-marker,
+.button-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.section > summary h2 {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* one-line content peek, right-aligned between title and chevron */
+.section-summary {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-dim);
+  font-size: 12px;
+  transition: transform 180ms ease;
+}
+
+details[open] > summary > .chevron {
+  transform: rotate(90deg);
+}
+
+details.section[open] > summary,
+.button-card[open] > summary {
+  margin-bottom: 12px;
+}
+
+/* collapsed button card header: icon, label + meta, delete, chevron */
+.button-card-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.button-card-meta {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-dim);
+}
+
+.card-icon {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text-dim);
+}
+
+img.card-icon {
+  height: 20px;
+  object-fit: contain;
+}
+
+/* ---- text prompt sheet (prompt buttons) ---- */
+.prompt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(7, 8, 12, 0.7);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.prompt-sheet {
+  width: 100%;
+  max-width: 480px;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background:
+    radial-gradient(120% 90% at 50% -20%, rgba(110, 231, 255, 0.07), transparent 60%),
+    rgba(13, 15, 22, 0.97);
+  border: 1px solid var(--glass-border);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.prompt-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(110, 231, 255, 0.3);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.prompt-sheet input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px; /* 16px+ stops iOS from zooming on focus */
+  color: var(--text);
+  background: rgba(8, 10, 15, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.prompt-sheet input:focus {
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  box-shadow:
+    0 0 0 3px rgba(110, 231, 255, 0.14),
+    0 0 20px rgba(110, 231, 255, 0.22);
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.prompt-actions button {
+  flex: 1;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: box-shadow 180ms ease, filter 180ms ease;
+}
+
+.prompt-cancel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-dim);
+}
+
+.prompt-send {
+  background: linear-gradient(135deg, var(--accent), #7aa2ff);
+  border: none;
+  color: #06222b;
+  box-shadow: 0 0 22px rgba(110, 231, 255, 0.3);
+}
+
+.prompt-send:not(:disabled):active {
+  filter: brightness(1.15);
+}
+
+.prompt-send:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}

@@ -1,0 +1,44 @@
+{
+  "name": "macro-pad",
+  "version": "0.1.0",
+  "description": "Virtual macro keyboard: turn your phone into a glowing macro pad for your Linux PC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4rtemi5/macro_pad.git"
+  },
+  "bugs": "https://github.com/4rtemi5/macro_pad/issues",
+  "homepage": "https://github.com/4rtemi5/macro_pad#readme",
+  "type": "module",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "bin": {
+    "macro-pad": "server/dist/cli.js"
+  },
+  "files": [
+    "server/dist",
+    "web/dist",
+    "config/pad.example.json",
+    "PROTOCOL.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w web\"",
+    "build": "npm run build -w web && npm run build -w server",
+    "start": "node server/dist/index.js",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "qrcode-terminal": "^0.12.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "playwright-core": "^1.55.0"
+  }
+}

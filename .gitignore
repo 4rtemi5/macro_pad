@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tgz
+
+# local config + runtime state — never commit your passcode
+config/pad.json
+config/pad_old.json
+config/state.json
+
+# local test/screenshot scratch dirs
+shots-tmp/
+test-tmp/
