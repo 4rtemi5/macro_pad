@@ -220,6 +220,12 @@ the key stays lit and slightly depressed. The state **survives server
 restarts** (persisted to `state.json` next to `pad.json`) and reverts
 automatically if the sub-action fails.
 
+Because a failed sub-action reverts the latch, make toggle commands
+idempotent — "already off" must exit 0, or the latch refuses to undo. Classic
+trap: `pkill -f 'some pattern'` exits 1 when nothing matches *and* can match
+its own shell's command line; write it as `pkill -f '[s]ome pattern' || true`
+(the `[s]` bracket keeps the pattern from matching itself).
+
 ```jsonc
 {
   "id": 4,

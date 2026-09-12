@@ -43,7 +43,7 @@
         { "id": 10, "label": "Caffeine", "icon": "fa:mug-hot",
           "action": { "type": "toggle",
             "on":  { "type": "script", "command": "systemd-inhibit --what=idle --why='macro pad caffeine' sleep 86400 >/dev/null 2>&1 &" },
-            "off": { "type": "script", "command": "pkill -f 'systemd-inhibit.*sleep 86400'" },
+            "off": { "type": "script", "command": "pkill -f '[s]ystemd-inhibit.*sleep 86400' || true" },
             "onState": { "glow": "breathing", "color": "#ffd180" } } }
       ]
     },
