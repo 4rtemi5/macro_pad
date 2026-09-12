@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { EventEmitter } from "node:events";
 import { z } from "zod";
 
@@ -247,7 +248,7 @@ export function userConfigDir(): string {
   return path.join(process.env.XDG_CONFIG_HOME ?? path.join(os.homedir(), ".config"), "macro-pad");
 }
 
-/** The starter pad: media keys work out of the box with xdotool/ydotool. */
+/** Fallback starter pad when the showcase example is unavailable: media keys work out of the box with xdotool/ydotool. */
 function defaultConfig(authToken: string): Record<string, unknown> {
   const media = (
     id: number,
@@ -267,6 +268,31 @@ function defaultConfig(authToken: string): Record<string, unknown> {
       media(5, "Vol +", "fa:volume-high", ["volup"]),
     ],
   };
+}
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * The bootstrap config is the showcase example (config/pad.example.json,
+ * shipped in the package): it demonstrates every feature — profiles, toggles,
+ * scripts, prompts, sequences, markdown tiles — and degrades gracefully when
+ * a referenced tool isn't installed. Always written with an EMPTY passcode:
+ * the first server start asks for one (or generates one when
+ * non-interactive). Falls back to the minimal media-keys pad when the
+ * example file is missing or broken.
+ */
+function starterConfigText(): string {
+  try {
+    const examplePath = path.resolve(moduleDir, "../../config/pad.example.json");
+    const text = fs.readFileSync(examplePath, "utf8");
+    const parsed = JSON.parse(text) as { server?: Record<string, unknown> };
+    // Never bootstrap with a non-empty (i.e. known, shared) passcode baked in.
+    if (parsed.server?.authToken === "") return text.endsWith("\n") ? text : text + "\n";
+    parsed.server = { ...(parsed.server ?? {}), authToken: "" };
+    return JSON.stringify(parsed, null, 2) + "\n";
+  } catch {
+    return JSON.stringify(defaultConfig(""), null, 2) + "\n";
+  }
 }
 
 /**
@@ -296,7 +322,7 @@ export function ensureConfigFile(): { file: string; created: boolean } {
       : path.join(userConfigDir(), "pad.json"));
 
   fs.mkdirSync(path.dirname(target), { recursive: true });
-  writePrivateFile(target, JSON.stringify(defaultConfig(""), null, 2) + "\n");
+  writePrivateFile(target, starterConfigText());
   return { file: target, created: true };
 }
 

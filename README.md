@@ -24,8 +24,10 @@ curl -fsSL https://raw.githubusercontent.com/4rtemi5/macro_pad/main/install.sh |
 
 **Scan the QR code with your phone** (same Wi-Fi) — the pad opens already
 authenticated; "Add to Home Screen" installs it as an app. No config editing:
-the first run creates `~/.config/macro-pad/pad.json` with a media-keys starter
-layout and asks you to choose a passcode (saved back into the config).
+the first run creates `~/.config/macro-pad/pad.json` from the showcase layout
+([`config/pad.example.json`](config/pad.example.json) — media, meetings, dev
+and herdr profiles demonstrating every feature) and asks you to choose a
+passcode (saved back into the config).
 
 Or install the latest release tarball manually:
 
@@ -203,10 +205,12 @@ In the settings UI the same thing is written in the keys field with semicolons
 separating chords: `ctrl, b; v`.
 
 The bundled [`config/pad.example.json`](config/pad.example.json) is a full
-showcase: four profiles (Media, Meetings, Dev, herdr) using every action type,
-display tiles, spans, toggles, live script patches — and a complete herdr
-control layout (splits, pane navigation, tabs, sidebar, detach, cheatsheet
-tile) that works with a stock herdr install.
+showcase — and it's also the starter config written on first run: four
+profiles (Media, Meetings, Dev, herdr) using every action type, display
+tiles, spans, toggles, live script patches — and a complete herdr control
+layout (splits, pane navigation, tabs, sidebar, detach, cheatsheet tile) that
+works with a stock herdr install. Delete the profiles you don't need; the
+settings UI (gear icon) edits everything live.
 
 ### Toggle buttons (latching)
 
