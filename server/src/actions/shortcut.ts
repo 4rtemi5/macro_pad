@@ -23,24 +23,39 @@ function hasBinary(bin: string): boolean {
   return r.status === 0;
 }
 
+/** Keep the last few lines of stderr for error messages (bounded). */
+function collectStderr(child: { stderr: NodeJS.ReadableStream | null }): () => string {
+  let buf = "";
+  child.stderr?.on("data", (d: Buffer) => {
+    buf = (buf + d.toString()).slice(-2000);
+  });
+  return () => buf.trim().split("\n").slice(-3).join(" — ").slice(0, 300);
+}
+
 function run(bin: string, args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn(bin, args, { stdio: "ignore" });
+    const child = spawn(bin, args, { stdio: ["ignore", "ignore", "pipe"] });
+    const stderr = collectStderr(child);
     child.on("error", reject);
-    child.on("exit", (code) =>
-      code === 0 ? resolve() : reject(new Error(`${bin} exited with code ${code}`)),
-    );
+    child.on("exit", (code) => {
+      if (code === 0) return resolve();
+      const detail = stderr();
+      reject(new Error(detail ? `${bin}: ${detail}` : `${bin} exited with code ${code}`));
+    });
   });
 }
 
 /** Like run(), but pipes `input` to the process's stdin (clipboard tools). */
 function runWithStdin(bin: string, args: string[], input: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn(bin, args, { stdio: ["pipe", "ignore", "ignore"] });
+    const child = spawn(bin, args, { stdio: ["pipe", "ignore", "pipe"] });
+    const stderr = collectStderr(child);
     child.on("error", reject);
-    child.on("exit", (code) =>
-      code === 0 ? resolve() : reject(new Error(`${bin} exited with code ${code}`)),
-    );
+    child.on("exit", (code) => {
+      if (code === 0) return resolve();
+      const detail = stderr();
+      reject(new Error(detail ? `${bin}: ${detail}` : `${bin} exited with code ${code}`));
+    });
     child.stdin!.end(input);
   });
 }

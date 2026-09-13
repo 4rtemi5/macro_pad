@@ -85,12 +85,12 @@ function cmdOpen(): void {
   child.unref();
 }
 
-const UNIT = (node: string, cli: string) => `[Unit]
+const UNIT = (node: string, cli: string, envLines: string) => `[Unit]
 Description=Macro Pad — virtual macro keyboard server
 After=network.target
 
 [Service]
-ExecStart="${node}" "${cli}" start
+${envLines}ExecStart="${node}" "${cli}" start
 Restart=on-failure
 RestartSec=2
 
@@ -128,9 +128,18 @@ function cmdService(action: string): void {
 
   // Resolve through npm's bin symlink so the unit survives PATH changes.
   const cli = fs.realpathSync(fileURLToPath(import.meta.url));
+  // Keystroke injection needs the session's display environment, which
+  // services don't inherit — bake the current one into the unit.
+  const displayEnv = ["DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY"]
+    .filter((k) => process.env[k])
+    .map((k) => `Environment="${k}=${String(process.env[k]).replace(/"/g, '\\"')}"`)
+    .join("\n");
   fs.mkdirSync(unitDir, { recursive: true });
-  fs.writeFileSync(unitPath, UNIT(process.execPath, cli));
+  fs.writeFileSync(unitPath, UNIT(process.execPath, cli, displayEnv ? displayEnv + "\n" : ""));
   console.log(`wrote ${unitPath}`);
+  if (displayEnv) {
+    console.log(`  with session env: ${displayEnv.split("\n").map((l) => l.slice(13, -1)).join(", ")}`);
+  }
 
   if (systemctl("daemon-reload") && systemctl("enable", "--now", "macro-pad.service")) {
     console.log("macro-pad service enabled and started");
@@ -139,6 +148,11 @@ function cmdService(action: string): void {
   } else {
     console.log("systemd --user not available — start manually with: macro-pad start");
     console.log(`or wire up this unit yourself: ${unitPath}`);
+  }
+  if (!displayEnv) {
+    console.log("  note: no DISPLAY/WAYLAND_DISPLAY in this session — if buttons fail with");
+    console.log("        'exited with code 1', run: systemctl --user edit macro-pad");
+    console.log("        and add under [Service]:  Environment=DISPLAY=:0");
   }
 }
 

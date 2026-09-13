@@ -17,6 +17,7 @@ import {
 } from "./config.js";
 import { StateStore, type ButtonView } from "./state.js";
 import { FocusWatcher } from "./focus.js";
+import { ActivityLog } from "./activity.js";
 import { printAccessInfo } from "./access.js";
 import { setupPasscode } from "./passcode.js";
 import { createShortcutExecutor, type BackendPreference } from "./actions/shortcut.js";
@@ -259,6 +260,7 @@ export async function main(): Promise<void> {
 
   const rpc = new RpcServer();
   const cfg = () => configs.current;
+  const activity = new ActivityLog();
 
   // --- Active profile + focus auto-switching --------------------------------
 
@@ -323,6 +325,8 @@ export async function main(): Promise<void> {
   });
 
   rpc.method("pad.getState", () => state.snapshot(activeProfileId));
+
+  rpc.method("pad.getLog", () => ({ entries: activity.list() }));
 
   rpc.method("pad.setProfile", (params) => {
     const id = (params as Record<string, unknown> | null)?.id;
@@ -393,39 +397,83 @@ export async function main(): Promise<void> {
       return runScript(action, (patch) => state.patch(profileId, id, patch), scriptEnv());
     };
 
-    // Pure display tile (no action configured) — pressing is a no-op.
-    if (!button.action) return { ok: true };
+    interface PressResult {
+      ok: boolean;
+      exitCode?: number | null;
+      stdout?: string;
+      stderr?: string;
+      error?: string;
+      on?: boolean;
+      backend?: string;
+    }
 
-    // Prompt buttons: the text comes from the client (typed on the phone),
-    // not from the config.
-    if (button.action.type === "prompt") {
-      const text = (params as Record<string, unknown> | null)?.text;
-      if (typeof text !== "string" || !text || text.length > 4096) {
-        throw new RpcError(INVALID_PARAMS, "prompt buttons require params.text (1-4096 chars)");
+    const execute = async (): Promise<PressResult> => {
+      // Pure display tile (no action configured) — pressing is a no-op.
+      if (!button.action) return { ok: true };
+
+      // Prompt buttons: the text comes from the client (typed on the phone),
+      // not from the config.
+      if (button.action.type === "prompt") {
+        const text = (params as Record<string, unknown> | null)?.text;
+        if (typeof text !== "string" || !text || text.length > 4096) {
+          throw new RpcError(INVALID_PARAMS, "prompt buttons require params.text (1-4096 chars)");
+        }
+        if (button.action.method === "paste") await shortcut.pasteText(text);
+        else await shortcut.typeText(text);
+        return { ok: true, exitCode: 0 };
       }
-      if (button.action.method === "paste") await shortcut.pasteText(text);
-      else await shortcut.typeText(text);
-      return { ok: true, exitCode: 0 };
-    }
 
-    if (button.action.type === "toggle") {
-      // Optimistic latch: flip + broadcast immediately so the pad feels
-      // instant, then run the matching sub-action. On failure, revert.
-      const target = !state.isOn(profileId, id);
-      state.setToggle(profileId, id, target);
-      const result = await runSubAction(target ? button.action.on : button.action.off);
-      if (!result.ok) {
-        state.setToggle(profileId, id, !target);
-        return { ok: false, on: !target, error: result.error ?? "action failed" };
+      if (button.action.type === "toggle") {
+        // Optimistic latch: flip + broadcast immediately so the pad feels
+        // instant, then run the matching sub-action. On failure, revert.
+        const target = !state.isOn(profileId, id);
+        state.setToggle(profileId, id, target);
+        const result = await runSubAction(target ? button.action.on : button.action.off);
+        if (!result.ok) {
+          state.setToggle(profileId, id, !target);
+          return { ok: false, on: !target, error: result.error ?? "action failed" };
+        }
+        return { ok: true, on: target };
       }
-      return { ok: true, on: target };
-    }
 
-    const result = await runSubAction(button.action);
-    if (button.action.type === "shortcut") {
-      return { ...result, backend: shortcut.name };
+      const result = await runSubAction(button.action);
+      if (button.action.type === "shortcut") {
+        return { ...result, backend: shortcut.name };
+      }
+      return result;
+    };
+
+    // Record every press in the activity log (server log + pad.getLog) and
+    // broadcast it to clients. User-entered text is never logged.
+    const actionType = button.action?.type ?? "display";
+    try {
+      const result = await execute();
+      rpc.notify(
+        "pad.activity",
+        activity.record({
+          profile: profileId,
+          button: id,
+          label: button.label,
+          action: actionType,
+          ok: result.ok,
+          error: result.ok ? undefined : (result.error ?? "action failed"),
+        }),
+      );
+      return result;
+    } catch (err) {
+      rpc.notify(
+        "pad.activity",
+        activity.record({
+          profile: profileId,
+          button: id,
+          label: button.label,
+          action: actionType,
+          ok: false,
+          error: err instanceof Error ? err.message : String(err),
+        }),
+      );
+      throw err;
     }
-    return result;
   });
 
   rpc.method("button.setState", (params) => {

@@ -369,6 +369,20 @@ Raw keycode passthrough (backend-specific, not available on `nutjs`):
 | `"XF86LaunchA"`   | xdotool | extended `XF86…` keysyms pass through directly |
 | `"ev:30"`     | ydotool | raw Linux input event code (0–767, `KEY_MAX`)       |
 
+### When a button fails
+
+The error toast shows the command's own output (e.g.
+`xdotool: can't open display`), and every press is recorded in the activity
+log — open **Settings → Recent activity** on the pad, or watch the server log
+(`journalctl --user -u macro-pad -f` when installed as a service; external
+tools can use the `pad.getLog` RPC / `pad.activity` notification).
+
+If buttons do nothing when running as a service, the service is probably
+missing your session's display environment. Reinstall it from your graphical
+session — `macro-pad service install` bakes in the current
+`DISPLAY`/`WAYLAND_DISPLAY`/`XAUTHORITY` — or add them manually via
+`systemctl --user edit macro-pad`.
+
 ## External clients / scripts
 
 Anything that can open a WebSocket can drive the pad — see

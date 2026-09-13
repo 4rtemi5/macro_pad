@@ -917,6 +917,77 @@ body::before {
   color: var(--text-dim);
 }
 
+/* --- recent activity log (settings) --------------------------------------- */
+
+.activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.activity-list li {
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(8, 10, 15, 0.5);
+  border: 1px solid transparent;
+  font-size: 13px;
+}
+
+.activity-list li.activity-fail {
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
+.activity-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.activity-time {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.activity-what {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-meta {
+  margin-left: 7px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.activity-ok .activity-status {
+  color: #51cf66;
+}
+
+.activity-fail .activity-status {
+  color: var(--danger);
+}
+
+.activity-error {
+  margin-top: 3px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: #ff9eae;
+  word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 .button-card {
   border: 1px solid var(--glass-border);
   border-radius: 12px;

@@ -22,6 +22,7 @@ import type { RpcClient } from "../rpcClient";
 import { resolveIcon } from "../icons";
 import { JsonEditor } from "./JsonEditor";
 import { KeepAwakeToggle } from "./KeepAwakeToggle";
+import { ActivitySection } from "./ActivitySection";
 import type {
   ConfigValidation,
   FullButton,
@@ -570,6 +571,8 @@ export function SettingsView({ client, onClose }: Props) {
           <h2>This device</h2>
           <KeepAwakeToggle />
         </section>
+
+        <ActivitySection client={client} />
 
         <div className="mode-toggle">
           <button className={mode === "visual" ? "active" : ""} onClick={() => switchMode("visual")}>

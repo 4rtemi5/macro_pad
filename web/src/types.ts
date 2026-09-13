@@ -47,6 +47,18 @@ export interface ProfileNotification {
   reason: "manual" | "focus" | "config";
 }
 
+/** One executed button action — `pad.getLog` result entries and the
+    `pad.activity` notification params. */
+export interface ActivityEntry {
+  ts: number;
+  profile: string;
+  button: number;
+  label?: string;
+  action: string;
+  ok: boolean;
+  error?: string;
+}
+
 /* --- Full config model (settings editor) — mirrors config/pad.json -------- */
 
 export interface StatePatch {

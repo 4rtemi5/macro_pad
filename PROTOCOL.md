@@ -206,6 +206,16 @@ the same id in two profiles has independent state.
 - Result: `{ "ok": true }`
 - Errors: `-32602` unknown id, empty patch, or invalid fields
 
+### `pad.getLog`
+
+The recent activity log: the last 100 button executions (newest first), kept
+in memory for the lifetime of the server process. Every entry is also written
+to the server log (`journalctl --user -u macro-pad` when running as a
+service). User-entered text (prompt/text action content) is never logged.
+
+- Params: none
+- Result: `{ "entries": [ { "ts": <epoch ms>, "profile": "<id>", "button": <id>, "label"?: string, "action": "shortcut" | "script" | "text" | "prompt" | "toggle" | "display", "ok": boolean, "error"?: string } ] }`
+
 ## Notifications (server → all clients)
 
 ### `button.state`
@@ -236,6 +246,13 @@ previously active profile. Clients should re-call `pad.getState`.
 Runtime patches are cleared on reload (toggle states are **not** — entries for
 deleted or no-longer-toggle buttons are pruned); clients should re-call
 `pad.getState`.
+
+### `pad.activity`
+
+A button was pressed and its action finished (or failed). Params are a single
+activity entry, same shape as the `pad.getLog` entries: `{ "ts", "profile",
+"button", "label"?, "action", "ok", "error"? }`. The settings UI uses this to
+update its Recent activity list live.
 
 ## Toggle state persistence
 
